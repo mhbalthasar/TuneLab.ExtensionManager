@@ -1,6 +1,7 @@
-
+/ExtensionManager/Kernel/.vs
+/ExtensionManager/Kernel/bin
+/ExtensionManager/Kernel/obj
+/ExtensionManager/Loader/.vs
+/ExtensionManager/Loader/bin
+/ExtensionManager/Loader/obj
 /ExtensionManager/.vs
-/ExtensionManager/bin
-/ExtensionManager/obj
-/ExtensionManagerKernel/bin
-/ExtensionManagerKernel/obj

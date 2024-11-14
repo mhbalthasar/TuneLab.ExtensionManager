@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExtensionManagerKernel\ExtensionManager.Kernel.csproj" />
+    <ProjectReference Include="..\Kernel\ExtensionManager.Kernel.csproj" />
   </ItemGroup>
 
 </Project>
