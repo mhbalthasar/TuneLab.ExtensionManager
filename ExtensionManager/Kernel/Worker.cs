@@ -15,7 +15,9 @@ namespace ExtensionManager
     internal static class Worker
     {
         public static int ExtensionSelectedIndex = -1;
-        public static List<string> ExtensionList = new List<string>() { "aaa" };
+        public static List<string> ExtensionList = new List<string>() { };
+
+        public static bool isWorking = false;
 
         public static string GuiTitle = "TuneLab Extension Manager";
 
@@ -25,7 +27,7 @@ namespace ExtensionManager
             if (ExtensionList.Count > ExtensionSelectedIndex && ExtensionSelectedIndex >= 0) oldName = ExtensionList[ExtensionSelectedIndex];
             ExtensionList.Clear();
             ExtensionLists.LoadExtensions();
-            ExtensionList = ExtensionLists.Extensions.Select(p => String.Format("{0} ({1})",p.name,p.version)).ToList();
+            ExtensionList.AddRange(ExtensionLists.Extensions.Select(p => String.Format("{0} ({1})",p.name,p.version)).ToList());
             ExtensionSelectedIndex = Array.FindIndex(ExtensionList.ToArray(), item => item == oldName);
         }
 
@@ -55,29 +57,32 @@ namespace ExtensionManager
             {
                 string binFile = Path.Combine(dir, "setting");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) binFile = binFile + ".exe";
-                binFile = binFile + ".sh";
+                else
                 {
-                    try
+                    binFile = binFile + ".sh";
                     {
-                        ProcessStartInfo psi = new ProcessStartInfo
+                        try
                         {
-                            FileName = "chmod",
-                            Arguments = $"a+x \"" + binFile + "\"",
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        };
+                            ProcessStartInfo psi = new ProcessStartInfo
+                            {
+                                FileName = "chmod",
+                                Arguments = $"a+x \"" + binFile + "\"",
+                                RedirectStandardOutput = true,
+                                RedirectStandardError = true,
+                                UseShellExecute = false,
+                                CreateNoWindow = true
+                            };
 
-                        using (Process process = new Process { StartInfo = psi })
-                        {
-                            // 启动进程
-                            process.Start();
-                            // 等待命令执行完成
-                            process.WaitForExit();
+                            using (Process process = new Process { StartInfo = psi })
+                            {
+                                // 启动进程
+                                process.Start();
+                                // 等待命令执行完成
+                                process.WaitForExit();
+                            }
                         }
+                        catch {; }
                     }
-                    catch {; }
                 }
                 Process.Start(binFile);
             }
@@ -88,6 +93,11 @@ namespace ExtensionManager
             string lockFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TuneLab", "TuneLab.lock");
             return File.Exists(lockFilePath);
         }
+        public static void UnlockTuneLabAlive()
+        {
+            string lockFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TuneLab", "TuneLab.lock");
+            if(File.Exists(lockFilePath))File.Delete(lockFilePath);
+        }
         public static void InstallExtension()
         {
             var ret=NativeFileDialogSharp.Dialog.FileOpen("tlx");
@@ -95,47 +105,52 @@ namespace ExtensionManager
             {
                 if (Path.Exists(ret.Path))
                 {
-                    try
+                    Task.Run(() =>
                     {
-                        bool restart = false;
-                        var extensionFolder = ExtensionLists.ExtensionsFolder;
+                        isWorking = true;
+                        try
+                        {
+                            bool restart = false;
+                            var extensionFolder = ExtensionLists.ExtensionsFolder;
 
-                        var name = Path.GetFileNameWithoutExtension(ret.Path);
-                        var entry = ZipFile.OpenRead(ret.Path).GetEntry("description.json");
-                        if (entry != null)
-                        {
-                            var description = JsonSerializer.Deserialize<ExtensionDescription>(entry.Open());
-                            if (!string.IsNullOrEmpty(description.name))
-                                name = description.name;
-                        }
-                        var dir = Path.Combine(extensionFolder, name);
-                        Console.WriteLine("Uninstalling " + name + "...");
-                        if (Directory.Exists(dir))
-                        {
-                            while (true)
+                            var name = Path.GetFileNameWithoutExtension(ret.Path);
+                            var entry = ZipFile.OpenRead(ret.Path).GetEntry("description.json");
+                            if (entry != null)
                             {
-                                try
+                                var description = JsonSerializer.Deserialize<ExtensionDescription>(entry.Open());
+                                if (!string.IsNullOrEmpty(description.name))
+                                    name = description.name;
+                            }
+                            var dir = Path.Combine(extensionFolder, name);
+                            Console.WriteLine("Uninstalling " + name + "...");
+                            if (Directory.Exists(dir))
+                            {
+                                while (true)
                                 {
-                                    Directory.Delete(dir, true);
-                                    break;
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("Failed to delete file: " + ex.ToString());
-                                    Console.WriteLine("Try again...");
-                                    Thread.Sleep(1000);
+                                    try
+                                    {
+                                        Directory.Delete(dir, true);
+                                        break;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Failed to delete file: " + ex.ToString());
+                                        Console.WriteLine("Try again...");
+                                        Thread.Sleep(1000);
+                                    }
                                 }
                             }
+                            Console.WriteLine("Installing " + name + "...");
+                            ZipFileHelper.ExtractToDirectory(ret.Path, dir);
+                            Console.WriteLine(name + " has been successfully installed!\n");
                         }
-                        Console.WriteLine("Installing " + name + "...");
-                        ZipFileHelper.ExtractToDirectory(ret.Path, dir);
-                        Console.WriteLine(name + " has been successfully installed!\n");
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Installation failed: " + ex.ToString());
+                        }
                         UpdateExtensions();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Installation failed: " + ex.ToString());
-                    }
+                        isWorking = false;
+                    });
                 }
             }
         }
@@ -146,34 +161,39 @@ namespace ExtensionManager
             string dir = ExtensionLists.ExtensionPaths[(int)index];
             if (Path.Exists(dir))
             {
-                try
+                Task.Run(() =>
                 {
-                    var k = File.OpenRead(Path.Combine(dir, "description.json"));
-                    var description = JsonSerializer.Deserialize<ExtensionDescription>(k);
-                    k.Close();
-                    if (description != null)
+                    isWorking = true;
+                    try
                     {
-                        if(description.name == ExtensionLists.Extensions[(int)index].name)
+                        var k = File.OpenRead(Path.Combine(dir, "description.json"));
+                        var description = JsonSerializer.Deserialize<ExtensionDescription>(k);
+                        k.Close();
+                        if (description != null)
                         {
-                            while (true)
+                            if (description.name == ExtensionLists.Extensions[(int)index].name)
                             {
-                                try
+                                while (true)
                                 {
-                                    Directory.Delete(dir, true);
-                                    break;
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("Failed to delete file: " + ex.ToString());
-                                    Console.WriteLine("Try again...");
-                                    Thread.Sleep(1000);
+                                    try
+                                    {
+                                        Directory.Delete(dir, true);
+                                        break;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Failed to delete file: " + ex.ToString());
+                                        Console.WriteLine("Try again...");
+                                        Thread.Sleep(1000);
+                                    }
                                 }
                             }
-                            UpdateExtensions();
                         }
-                    } 
-                }
-                catch {; }
+                    }
+                    catch {; }
+                    UpdateExtensions();
+                    isWorking = false;
+                });
             }
         }
     }

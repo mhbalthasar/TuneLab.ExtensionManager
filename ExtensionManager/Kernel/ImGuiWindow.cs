@@ -40,7 +40,6 @@ namespace ExtensionManager
 
         bool SubmitUI()
         {
-
             if (_showAlertWindow)
             {
                 ImGui.SetNextWindowSize(new Vector2(this.Size.X / 2, this.Size.Y / 2), ImGuiCond.Always);
@@ -72,6 +71,11 @@ namespace ExtensionManager
                 if (ImGui.Button("No", new Vector2(100, 25)))
                     _showConfirmWindow = false;
                 ImGui.End();
+            }
+            else if (Worker.isWorking)
+            {
+                ImGui.SetCursorPos(new Vector2(10, 15));
+                ImGui.Text("Program is running for your action, please wait for a moment.");
             }
             else
             {
@@ -111,6 +115,12 @@ namespace ExtensionManager
                             Worker.StartSetting(Worker.ExtensionSelectedIndex);
                     }
                 }
+                ImGui.SetCursorPos(new Vector2(525, 160));
+                if (Worker.CheckTuneLabAlive()) if (ImGui.Button("Unlock\nTunelab", new Vector2(100, 35)))
+                    {
+                        if (Worker.CheckTuneLabAlive())
+                            Worker.UnlockTuneLabAlive();
+                    }
             }
             return true;
         }

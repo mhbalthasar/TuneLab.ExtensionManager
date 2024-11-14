@@ -17,6 +17,7 @@ namespace ExtensionManager.Utils
         public static void LoadExtensions()
         {
             Extensions.Clear();
+            ExtensionPaths.Clear();
             foreach (var dir in Directory.GetDirectories(ExtensionsFolder))
             {
                 Load(dir);
