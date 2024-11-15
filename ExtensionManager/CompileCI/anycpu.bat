@@ -10,5 +10,10 @@ del /s /q ..\Output\*.exp
 del /s /q ..\Output\*.lib
 del /s /q ..\Output\*.pdb
 
+REM Linux_RUNTIMER
+set "zipFilePath=.\ext_runtime.zip"
+set "destinationFolder=..\Output\"
+powershell -Command "Expand-Archive -Path '%zipFilePath%' -DestinationPath '%destinationFolder%' -Force"
+
 REM Linux_SH
-copy .\runner.sh ..\Output\ExtensionManager.sh
+move ..\Output\runner.sh ..\Output\ExtensionManager.sh
