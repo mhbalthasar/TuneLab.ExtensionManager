@@ -1,10 +1,11 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using ImGuiNET;
 using ImGuiNET.SDL2CS;
 
 namespace ExtensionManager
 {
-    public class ImGuiWindow : ImWindowExt
+    public class ImGuiWindow : ImWindowExt_CJK
     {
         private bool _showAlertWindow = false;
         private string _textPopupWindow = "";
@@ -32,14 +33,26 @@ namespace ExtensionManager
 
         public ImGuiWindow() : base(Mode.Single, "", null, win_width, win_height, win_flags)
         {
+            InitFont();
             Title = Worker.GuiTitle;
             BackgroundColor = new Vector4(0, 0, 0, 0);
             Worker.UpdateExtensions();
             mAction = SubmitUI;
+            _AssocWindow = new AssocManager.SubWindow(this.Size);
+        }
+        void InitFont()
+        {
+            var io = ImGui.GetIO();
+            io.Fonts.Clear();
+            var fontPtr = zpixFont.zpixFont.getFont(out long fontLen);
+            io.Fonts.AddFontFromMemoryTTF(fontPtr, (int)fontLen, 12f, null, io.Fonts.GetGlyphRangesChineseFull());
         }
 
+        AssocManager.SubWindow _AssocWindow;
         bool SubmitUI()
         {
+            if (_AssocWindow.IsOpen()) return _AssocWindow.SubmitUI();
+
             if (_showAlertWindow)
             {
                 ImGui.SetNextWindowSize(new Vector2(this.Size.X / 2, this.Size.Y / 2), ImGuiCond.Always);
@@ -83,7 +96,7 @@ namespace ExtensionManager
                 ImGui.Text("Extensions:");
                 ImGui.SetCursorPos(new Vector2(10, 40));
                 ImGui.PushItemWidth(500);
-                if (ImGui.ListBox("", ref Worker.ExtensionSelectedIndex, Worker.ExtensionList.ToArray(), Worker.ExtensionList.Count, 14))
+                if (ImGui.ListBox("", ref Worker.ExtensionSelectedIndex, Worker.ExtensionList.ToArray(), Worker.ExtensionList.Count, 15))
                 {
                     // Alert(Worker.ExtensionSelectedIndex.ToString());
                 };
@@ -120,6 +133,13 @@ namespace ExtensionManager
                     {
                         if (Worker.CheckTuneLabAlive())
                             Worker.UnlockTuneLabAlive();
+                    }
+                ImGui.SetCursorPos(new Vector2(525, 200));
+                //暂时先只开windows
+                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) 
+                    if (ImGui.Button("OS Assoc>>", new Vector2(100, 35)))
+                    {
+                    _AssocWindow.Open();
                     }
             }
             return true;

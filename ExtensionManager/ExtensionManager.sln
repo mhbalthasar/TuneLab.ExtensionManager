@@ -5,7 +5,11 @@ VisualStudioVersion = 17.9.34902.65
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExtensionManager", "Loader\ExtensionManager.csproj", "{DA5B6D45-FEA3-4BEE-AE6D-AE83BFA506FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtensionManager.Kernel", "Kernel\ExtensionManager.Kernel.csproj", "{0202ED24-22D9-4429-923A-B34744E70B45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExtensionManager.Kernel", "Kernel\ExtensionManager.Kernel.csproj", "{0202ED24-22D9-4429-923A-B34744E70B45}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "zpixFont", "zpixFont\zpixFont.csproj", "{6F129115-2FD9-4E68-B245-659367CA6733}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExtensionManager.Assoc", "Assoc\ExtensionManager.Assoc.csproj", "{6CB63434-8DD2-4E43-9958-04DA4D48C2FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{0202ED24-22D9-4429-923A-B34744E70B45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0202ED24-22D9-4429-923A-B34744E70B45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0202ED24-22D9-4429-923A-B34744E70B45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F129115-2FD9-4E68-B245-659367CA6733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F129115-2FD9-4E68-B245-659367CA6733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F129115-2FD9-4E68-B245-659367CA6733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F129115-2FD9-4E68-B245-659367CA6733}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CB63434-8DD2-4E43-9958-04DA4D48C2FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CB63434-8DD2-4E43-9958-04DA4D48C2FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CB63434-8DD2-4E43-9958-04DA4D48C2FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CB63434-8DD2-4E43-9958-04DA4D48C2FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
