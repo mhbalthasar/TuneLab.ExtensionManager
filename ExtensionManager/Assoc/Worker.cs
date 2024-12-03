@@ -66,7 +66,7 @@ namespace AssocManager
                             if (mio > 5) SupportCmdOpen = true;
                             else if (mio == 5)
                             {
-                                if (bud > 7) SupportCmdOpen = true;
+                                if (bud > 8) SupportCmdOpen = true;
                                 else SupportCmdOpen = false;
                             }
                             else SupportCmdOpen = false;

@@ -138,7 +138,7 @@ namespace AssocManager
                     ImGui.SetCursorPos(new Vector2(350, 150));
                     if (ImGui.Button("Assoc\nFile Format", new Vector2(100, 80)))
                     {
-                        if (!Worker.SupportCmdOpen) Alert("This Function Only Support TuneLab Version Above 1.5.8");
+                        if (!Worker.SupportCmdOpen) Alert("This Function Only Support TuneLab Version Above 1.5.9");
                         else if (Worker.SetAlloc(0)) Alert("Done!");
                     }
 
